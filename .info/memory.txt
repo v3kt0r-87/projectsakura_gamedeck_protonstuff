@@ -1,0 +1,109 @@
+# ==============================================================================
+# PROJECT SAKURA GAMEDECK - REPOSITORY MEMORY & CONTEXT
+# ==============================================================================
+# Location: .info/memory.txt
+# Last Updated: 2026-08-16
+# Repository: v3kt0r-87/projectsakura_gamedeck_protonstuff
+# ==============================================================================
+
+[1] OVERVIEW & PURPOSE
+--------------------------------------------------------------------------------
+This repository hosts driver binaries, translation layers, and packaging scripts
+tailored for Project Sakura GameDeck and Android container gaming environments
+(such as Winlator / Winlator CMod / Glibc containers).
+
+Components are packaged into Winlator Container Packages (.wcp files), which are
+zstandard-compressed tar archives (tar.zst) that the Android container's content
+manager / package installer extracts into the appropriate Wine prefix locations.
+
+
+[2] COMPONENT DIRECTORIES & ASSETS
+--------------------------------------------------------------------------------
+1. turnip-latest/
+   - Component: Freedreno Turnip Vulkan Driver
+   - Version: 26.2.0 (Compiled with Android NDK 30, Vulkan 1.3/4, minApi 31)
+   - Manifest: meta.json (Schema Version 1)
+   - Library: vulkan.turnip.so
+   - Compatibility: Android 12+ (SDK 31+ / Android 12, 13, 14, 15)
+   - Output: releases/turnip-latest.wcp
+
+2. dxvk-sarek-latest/
+   - Component: DXVK Sarek (DirectX 8, 9, 10, 11 & DirectDraw translation to Vulkan)
+   - Version: 1.12.0-sarek
+   - Structure:
+     * x64/ (64-bit DLLs: dxgi.dll, d3d11.dll, d3d10core.dll, d3d9.dll, d3d8.dll, ddraw.dll)
+     * x32/ (32-bit DLLs: dxgi.dll, d3d11.dll, d3d10core.dll, d3d9.dll, d3d8.dll, ddraw.dll)
+     * profile.json (Maps x64 DLLs -> ${system32} and x32 DLLs -> ${syswow64})
+   - Output: releases/dxvk-sarek-latest.wcp
+
+3. vkd3d-latest/
+   - Component: VKD3D-Proton (DirectX 12 to Vulkan translation)
+   - Version: 3.0.1
+   - Structure:
+     * x64/ (64-bit DLLs: d3d12.dll, d3d12core.dll)
+     * x86/ (32-bit DLLs: d3d12.dll, d3d12core.dll)
+     * setup_vkd3d_proton.sh (Helper installation script)
+     * profile.json (Maps x64 DLLs -> ${system32} and x86 DLLs -> ${syswow64})
+   - Output: releases/vkd3d-latest.wcp
+
+
+[3] BUILD UTILITY (package_wcp.py)
+--------------------------------------------------------------------------------
+- Script: package_wcp.py (Python 3 executable)
+- Requirements: GNU tar with --zstd support, zstd CLI
+- Responsibilities:
+  1. Locates turnip-latest, dxvk-sarek-latest, and vkd3d-latest in repo root.
+  2. Compresses component directories directly with tar --zstd if profile.json / meta.json exists.
+  3. Provides fallback staging if profile.json is absent.
+  4. Places built .wcp packages in releases/.
+  5. Computes and generates SHA256 checksums in releases/SHA256SUMS.txt.
+  6. Cleans up any scratch temporary directories after execution.
+
+- How to build packages:
+  Run command: `python3 package_wcp.py`
+
+
+[4] FIXES & REVISIONS LOG
+--------------------------------------------------------------------------------
+- Fix 1: Corrected TOOLKIT_ROOT resolution in package_wcp.py from parent directory
+  os.path.dirname(SCRIPT_DIR) to SCRIPT_DIR, resolving a bug where all component
+  folders were skipped and checksums were generated empty.
+- Fix 2: Preserved pre-existing profile.json manifests in dxvk-sarek-latest and
+  vkd3d-latest so custom Sakura GameDeck branding, exact file mappings, and extra
+  helper scripts (like setup_vkd3d_proton.sh) are bundled cleanly into the archives.
+- Fix 3: Lowered turnip-latest meta.json minApi from 34 to 31. Verified via ELF
+  symbol audit (.gnu.version_r) that vulkan.turnip.so only requires symbol versions
+  up to LIBC_R (API 30) and API 26-29 AHardwareBuffer/sync functions, enabling full
+  out-of-the-box compatibility on Android 12 (SDK 31), Android 13 (SDK 33), and
+  Android 14+ (SDK 34+) without triggering Winlator API version blocks.
+- Fix 4: Added .gitignore covering releases/, build_wcp_temp/, *.wcp, and Python
+  cache directories.
+
+
+[5] WINLATOR .WCP SPECIFICATION SUMMARY
+--------------------------------------------------------------------------------
+- A .wcp file is a tar archive compressed with zstd: `tar --zstd -cf package.wcp -C <dir> .`
+- Driver packages use `meta.json` at root:
+  {
+    "schemaVersion": 1,
+    "name": "...",
+    "description": "...",
+    "author": "...",
+    "packageVersion": "...",
+    "vendor": "...",
+    "driverVersion": "...",
+    "minApi": 31,
+    "libraryName": "vulkan.turnip.so"
+  }
+- Component packages (DXVK, VKD3D, Wine, Box64, FEX) use `profile.json` at root:
+  {
+    "type": "DXVK" | "VKD3D" | "WINE" | ...,
+    "versionName": "...",
+    "versionCode": 1,
+    "description": "...",
+    "files": [
+      { "source": "relative/path/in/archive.dll", "target": "${system32}/file.dll" },
+      { "source": "relative/path/in/archive.dll", "target": "${syswow64}/file.dll" }
+    ]
+  }
+
