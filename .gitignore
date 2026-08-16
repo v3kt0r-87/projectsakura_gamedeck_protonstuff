@@ -1,0 +1,14 @@
+# Build outputs & packages
+releases/
+build_wcp_temp/
+*.wcp
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS / Editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
