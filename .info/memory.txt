@@ -12,9 +12,11 @@ This repository hosts driver binaries, translation layers, and packaging scripts
 tailored for Project Sakura GameDeck and Android container gaming environments
 (such as Winlator / Winlator CMod / Glibc containers).
 
-Components are packaged into Winlator Container Packages (.wcp files), which are
-zstandard-compressed tar archives (tar.zst) that the Android container's content
-manager / package installer extracts into the appropriate Wine prefix locations.
+Components are packaged into:
+1. Custom Driver ZIP archives (.zip) for GPU drivers (Turnip), containing meta.json
+   and vulkan.turnip.so at the archive root for standard Android / Winlator driver loaders.
+2. Winlator Container Packages (.wcp files), which are zstandard-compressed tar archives
+   (tar.zst) that the Android container extracts into Wine prefix locations based on profile.json.
 
 
 [2] COMPONENT DIRECTORIES & ASSETS
@@ -25,7 +27,7 @@ manager / package installer extracts into the appropriate Wine prefix locations.
    - Manifest: meta.json (Schema Version 1)
    - Library: vulkan.turnip.so
    - Compatibility: Android 12+ (SDK 31+ / Android 12, 13, 14, 15)
-   - Output: releases/turnip-latest.wcp
+   - Output: releases/turnip-latest.zip
 
 2. dxvk-sarek-latest/
    - Component: DXVK Sarek (DirectX 8, 9, 10, 11 & DirectDraw translation to Vulkan)
@@ -36,27 +38,17 @@ manager / package installer extracts into the appropriate Wine prefix locations.
      * profile.json (Maps x64 DLLs -> ${system32} and x32 DLLs -> ${syswow64})
    - Output: releases/dxvk-sarek-latest.wcp
 
-3. vkd3d-latest/
-   - Component: VKD3D-Proton (DirectX 12 to Vulkan translation)
-   - Version: 3.0.1
-   - Structure:
-     * x64/ (64-bit DLLs: d3d12.dll, d3d12core.dll)
-     * x86/ (32-bit DLLs: d3d12.dll, d3d12core.dll)
-     * setup_vkd3d_proton.sh (Helper installation script)
-     * profile.json (Maps x64 DLLs -> ${system32} and x86 DLLs -> ${syswow64})
-   - Output: releases/vkd3d-latest.wcp
-
 
 [3] BUILD UTILITY (package_wcp.py)
 --------------------------------------------------------------------------------
 - Script: package_wcp.py (Python 3 executable)
-- Requirements: GNU tar with --zstd support, zstd CLI
+- Requirements: GNU tar with --zstd support (for .wcp), Python zipfile (for .zip)
 - Responsibilities:
-  1. Locates turnip-latest, dxvk-sarek-latest, and vkd3d-latest in repo root.
-  2. Compresses component directories directly with tar --zstd if profile.json / meta.json exists.
-  3. Provides fallback staging if profile.json is absent.
-  4. Places built .wcp packages in releases/.
-  5. Computes and generates SHA256 checksums in releases/SHA256SUMS.txt.
+  1. Locates turnip-latest and dxvk-sarek-latest in repo root.
+  2. Packages turnip-latest into a standard custom driver .zip archive (turnip-latest.zip).
+  3. Compresses dxvk-sarek-latest into a Winlator container package (dxvk-sarek-latest.wcp).
+  4. Places built packages in releases/.
+  5. Computes and generates SHA256 checksums for all packages in releases/SHA256SUMS.txt.
   6. Cleans up any scratch temporary directories after execution.
 
 - How to build packages:
@@ -68,22 +60,26 @@ manager / package installer extracts into the appropriate Wine prefix locations.
 - Fix 1: Corrected TOOLKIT_ROOT resolution in package_wcp.py from parent directory
   os.path.dirname(SCRIPT_DIR) to SCRIPT_DIR, resolving a bug where all component
   folders were skipped and checksums were generated empty.
-- Fix 2: Preserved pre-existing profile.json manifests in dxvk-sarek-latest and
-  vkd3d-latest so custom Sakura GameDeck branding, exact file mappings, and extra
-  helper scripts (like setup_vkd3d_proton.sh) are bundled cleanly into the archives.
+- Fix 2: Preserved pre-existing profile.json manifests in dxvk-sarek-latest so custom
+  Sakura GameDeck branding and exact file mappings are bundled cleanly into the archives.
 - Fix 3: Lowered turnip-latest meta.json minApi from 34 to 31. Verified via ELF
   symbol audit (.gnu.version_r) that vulkan.turnip.so only requires symbol versions
   up to LIBC_R (API 30) and API 26-29 AHardwareBuffer/sync functions, enabling full
   out-of-the-box compatibility on Android 12 (SDK 31), Android 13 (SDK 33), and
   Android 14+ (SDK 34+) without triggering Winlator API version blocks.
-- Fix 4: Added .gitignore covering releases/, build_wcp_temp/, *.wcp, and Python
+- Fix 4: Added .gitignore covering releases/, build_wcp_temp/, *.wcp, *.zip, and Python
   cache directories.
+- Fix 5: Removed VKD3D-Proton component, deleted GitHub Actions YAML workflow,
+  and updated Turnip driver packaging format from .wcp to standard custom driver
+  .zip (with meta.json and vulkan.turnip.so at zip root), updating checksum
+  generation and build scripts accordingly.
+- Fix 6: Removed fetch_proton.py and unused scripts directory, maintaining
+  a lean repository focused exclusively on Turnip driver and DXVK Sarek packaging.
 
 
-[5] WINLATOR .WCP SPECIFICATION SUMMARY
+[5] PACKAGE SPECIFICATION SUMMARY
 --------------------------------------------------------------------------------
-- A .wcp file is a tar archive compressed with zstd: `tar --zstd -cf package.wcp -C <dir> .`
-- Driver packages use `meta.json` at root:
+- Custom Driver (.zip): Standard zip archive with `meta.json` and `vulkan.turnip.so` at root:
   {
     "schemaVersion": 1,
     "name": "...",
@@ -95,9 +91,10 @@ manager / package installer extracts into the appropriate Wine prefix locations.
     "minApi": 31,
     "libraryName": "vulkan.turnip.so"
   }
-- Component packages (DXVK, VKD3D, Wine, Box64, FEX) use `profile.json` at root:
+- Container Package (.wcp): A tar archive compressed with zstd (`tar --zstd -cf package.wcp -C <dir> .`)
+  with `profile.json` at root:
   {
-    "type": "DXVK" | "VKD3D" | "WINE" | ...,
+    "type": "DXVK" | "WINE" | ...,
     "versionName": "...",
     "versionCode": 1,
     "description": "...",
@@ -106,4 +103,3 @@ manager / package installer extracts into the appropriate Wine prefix locations.
       { "source": "relative/path/in/archive.dll", "target": "${syswow64}/file.dll" }
     ]
   }
-
