@@ -1,0 +1,56 @@
+{
+  "type": "DXVK",
+  "versionName": "1.12.0-sarek",
+  "versionCode": 1,
+  "description": "DXVK Sarek with DirectX 8, 9, 10, 11 and DirectDraw support for Sakura GameDeck",
+  "files": [
+    {
+      "source": "x64/dxgi.dll",
+      "target": "${system32}/dxgi.dll"
+    },
+    {
+      "source": "x64/d3d11.dll",
+      "target": "${system32}/d3d11.dll"
+    },
+    {
+      "source": "x64/d3d10core.dll",
+      "target": "${system32}/d3d10core.dll"
+    },
+    {
+      "source": "x64/d3d9.dll",
+      "target": "${system32}/d3d9.dll"
+    },
+    {
+      "source": "x64/d3d8.dll",
+      "target": "${system32}/d3d8.dll"
+    },
+    {
+      "source": "x64/ddraw.dll",
+      "target": "${system32}/ddraw.dll"
+    },
+    {
+      "source": "x32/dxgi.dll",
+      "target": "${syswow64}/dxgi.dll"
+    },
+    {
+      "source": "x32/d3d11.dll",
+      "target": "${syswow64}/d3d11.dll"
+    },
+    {
+      "source": "x32/d3d10core.dll",
+      "target": "${syswow64}/d3d10core.dll"
+    },
+    {
+      "source": "x32/d3d9.dll",
+      "target": "${syswow64}/d3d9.dll"
+    },
+    {
+      "source": "x32/d3d8.dll",
+      "target": "${syswow64}/d3d8.dll"
+    },
+    {
+      "source": "x32/ddraw.dll",
+      "target": "${syswow64}/ddraw.dll"
+    }
+  ]
+}
