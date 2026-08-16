@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-Winlator Container Package (.wcp) Builder
-Converts raw component directories (Turnip, DXVK, VKD3D) into standard .wcp (tar.zst) packages.
+Project Sakura GameDeck Package Builder
+Converts raw component directories (Turnip -> .zip, DXVK -> .wcp) into release packages.
 """
 
 import os
 import sys
 import json
 import shutil
+import zipfile
 import subprocess
 import hashlib
 
@@ -33,15 +34,31 @@ def create_wcp_archive(source_dir, output_wcp_path):
     size_mb = os.path.getsize(output_wcp_path) / (1024 * 1024)
     print(f" -> Created {os.path.basename(output_wcp_path)} ({size_mb:.2f} MB)")
 
+def create_zip_archive(source_dir, output_zip_path):
+    """Creates a standard .zip archive containing directory contents at zip root."""
+    print(f" -> Compressing into ZIP: {os.path.basename(output_zip_path)}...")
+    if os.path.exists(output_zip_path):
+        os.remove(output_zip_path)
+
+    with zipfile.ZipFile(output_zip_path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zipf:
+        for root, dirs, files in os.walk(source_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                arcname = os.path.relpath(file_path, source_dir)
+                zipf.write(file_path, arcname)
+
+    size_mb = os.path.getsize(output_zip_path) / (1024 * 1024)
+    print(f" -> Created {os.path.basename(output_zip_path)} ({size_mb:.2f} MB)")
+
 def package_turnip():
     turnip_dir = os.path.join(TOOLKIT_ROOT, "turnip-latest")
     if not os.path.exists(turnip_dir):
         print("[WARN] turnip-latest directory not found, skipping.")
         return
 
-    print("\n[+] Packaging Freedreno Turnip Vulkan Driver (.wcp)...")
-    output_path = os.path.join(RELEASES_DIR, "turnip-latest.wcp")
-    create_wcp_archive(turnip_dir, output_path)
+    print("\n[+] Packaging Freedreno Turnip Vulkan Driver (.zip)...")
+    output_path = os.path.join(RELEASES_DIR, "turnip-latest.zip")
+    create_zip_archive(turnip_dir, output_path)
 
 def package_dxvk():
     dxvk_dir = os.path.join(TOOLKIT_ROOT, "dxvk-sarek-latest")
@@ -109,83 +126,12 @@ def package_dxvk():
 
     create_wcp_archive(staging_dir, output_path)
 
-def package_vkd3d():
-    vkd3d_dir = os.path.join(TOOLKIT_ROOT, "vkd3d-latest")
-    if not os.path.exists(vkd3d_dir):
-        print("[WARN] vkd3d-latest directory not found, skipping.")
-        return
-
-    print("\n[+] Packaging VKD3D-Proton (.wcp)...")
-    output_path = os.path.join(RELEASES_DIR, "vkd3d-latest.wcp")
-
-    # If profile.json already exists in the directory, package directly to preserve exact configuration
-    existing_profile = os.path.join(vkd3d_dir, "profile.json")
-    if os.path.exists(existing_profile):
-        create_wcp_archive(vkd3d_dir, output_path)
-        return
-
-    staging_dir = os.path.join(SCRATCH_TEMP_DIR, "vkd3d_staging")
-    os.makedirs(staging_dir, exist_ok=True)
-
-    sys32_dir = os.path.join(staging_dir, "system32")
-    syswow64_dir = os.path.join(staging_dir, "syswow64")
-    os.makedirs(sys32_dir, exist_ok=True)
-    os.makedirs(syswow64_dir, exist_ok=True)
-
-    # Copy 64-bit DLLs
-    src_x64 = os.path.join(vkd3d_dir, "x64")
-    if os.path.exists(src_x64):
-        for f in os.listdir(src_x64):
-            shutil.copy2(os.path.join(src_x64, f), os.path.join(sys32_dir, f))
-
-    # Copy 32-bit DLLs (from x86/)
-    src_x86 = os.path.join(vkd3d_dir, "x86")
-    if os.path.exists(src_x86):
-        for f in os.listdir(src_x86):
-            shutil.copy2(os.path.join(src_x86, f), os.path.join(syswow64_dir, f))
-
-    # Copy helper script if present
-    sh_script = os.path.join(vkd3d_dir, "setup_vkd3d_proton.sh")
-    if os.path.exists(sh_script):
-        shutil.copy2(sh_script, os.path.join(staging_dir, "setup_vkd3d_proton.sh"))
-
-    # Build standardized profile.json
-    profile = {
-        "type": "VKD3D",
-        "versionName": "3.0.1",
-        "versionCode": 1,
-        "description": "VKD3D-Proton for DirectX 12 translation for Sakura GameDeck",
-        "files": []
-    }
-
-    # Add system32 files
-    for f in sorted(os.listdir(sys32_dir)):
-        if f.endswith(".dll"):
-            profile["files"].append({
-                "source": f"system32/{f}",
-                "target": f"${{system32}}/{f}"
-            })
-
-    # Add syswow64 files
-    for f in sorted(os.listdir(syswow64_dir)):
-        if f.endswith(".dll"):
-            profile["files"].append({
-                "source": f"syswow64/{f}",
-                "target": f"${{syswow64}}/{f}"
-            })
-
-    profile_path = os.path.join(staging_dir, "profile.json")
-    with open(profile_path, "w") as f:
-        json.dump(profile, f, indent=2)
-
-    create_wcp_archive(staging_dir, output_path)
-
 def generate_checksums():
     print("\n[+] Updating SHA256SUMS.txt...")
     checksum_file = os.path.join(RELEASES_DIR, "SHA256SUMS.txt")
     lines = []
     
-    files = sorted([f for f in os.listdir(RELEASES_DIR) if f.endswith(".wcp")])
+    files = sorted([f for f in os.listdir(RELEASES_DIR) if f.endswith((".wcp", ".zip"))])
     for fname in files:
         fpath = os.path.join(RELEASES_DIR, fname)
         hasher = hashlib.sha256()
@@ -206,15 +152,14 @@ def cleanup():
 
 def main():
     print("=" * 60)
-    print(" Android Gaming Packages - WCP (.tar.zst) Packaging Tool")
+    print(" Android Gaming Packages - Driver & Translation Packaging Tool")
     print("=" * 60)
     ensure_dirs()
     try:
         package_turnip()
         package_dxvk()
-        package_vkd3d()
         generate_checksums()
-        print("\n[✓] All WCP packages built successfully!")
+        print("\n[✓] All packages built successfully!")
     finally:
         cleanup()
 

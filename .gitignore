@@ -2,6 +2,7 @@
 releases/
 build_wcp_temp/
 *.wcp
+*.zip
 
 # Python cache
 __pycache__/
