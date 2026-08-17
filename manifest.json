@@ -1,0 +1,76 @@
+    {                                                                                                              
+      "version": 1,                                                                                                
+      "updatedAt": "2026-08-17",                                                                                   
+      "items": {                                                                                                   
+        "driver": [                                                                                                
+          {                                                                                                        
+            "id": "Turnip-Test-v1.0",                                                                              
+            "name": "Turnip Test Driver v1.0",                                                                     
+            "url": "https://downloads.gamenative.app/drivers/test_driver.zip",                                     
+            "variant": "bionic"
+          }
+        ],
+        "proton": [
+          {
+            "id": "proton-test-11.0-arm64ec",
+            "name": "Proton Test 11.0 ARM64ec",
+            "url": "https://downloads.gamenative.app/proton/proton-test-11.0.wcp",
+            "variant": "bionic"
+          },
+          {
+            "id": "proton-test-ge-glibc",
+            "name": "Proton Test GE Glibc",
+            "url": "https://downloads.gamenative.app/proton/proton-test-glibc.wcp",
+            "variant": "glibc"
+          }
+        ],
+        "wine": [
+          {
+            "id": "wine-test-9.0",
+            "name": "Wine Test 9.0",
+            "url": "https://downloads.gamenative.app/wine/wine-test-9.0.wcp",
+            "variant": "bionic"
+          }
+        ],
+        "dxvk": [
+          {
+            "id": "dxvk-test-2.5.0",
+            "name": "DXVK Test 2.5.0",
+            "url": "https://downloads.gamenative.app/dxwrapper/dxvk-test-2.5.0.wcp",
+            "variant": "bionic"
+          }
+        ],
+        "vkd3d": [
+          {
+            "id": "vkd3d-test-3.0",
+            "name": "VKD3D Test 3.0",
+            "url": "https://downloads.gamenative.app/dxwrapper/vkd3d-test-3.0.tzst",
+            "variant": "bionic"
+          }
+        ],
+        "box64": [
+          {
+            "id": "box64-test-0.3.2",
+            "name": "Box64 Test 0.3.2",
+            "url": "https://downloads.gamenative.app/box64/box64-test-0.3.2.wcp",
+            "variant": "bionic"
+          }
+        ],
+        "wowbox64": [
+          {
+            "id": "wowbox64-test-0.3.6",
+            "name": "WOWBox64 Test 0.3.6",
+            "url": "https://downloads.gamenative.app/box64/wowbox64-test-0.3.6.wcp",
+            "variant": "bionic"
+          }
+        ],
+        "fexcore": [
+          {
+            "id": "fex-test-2601",
+            "name": "FEXCore Test 2601",
+            "url": "https://downloads.gamenative.app/fex/fex-test-2601.wcp",
+            "variant": "bionic"
+          }
+        ]
+      }
+    }
