@@ -2,39 +2,40 @@
 # PROJECT SAKURA GAMEDECK - REPOSITORY MEMORY & CONTEXT
 # ==============================================================================
 # Location: .info/memory.txt
-# Last Updated: 2026-08-16
+# Last Updated: 2026-08-22
 # Repository: v3kt0r-87/projectsakura_gamedeck_protonstuff
 # ==============================================================================
 
 [1] OVERVIEW & PURPOSE
 --------------------------------------------------------------------------------
-This repository hosts driver binaries, translation layers, and packaging scripts
-tailored for Project Sakura GameDeck and Android container gaming environments
-(such as Winlator / Winlator CMod / Glibc containers).
+This repository hosts driver binaries, translation layers, manifests, and packaging
+scripts tailored for Project Sakura GameDeck and Android container gaming
+environments (such as GameNative / Winlator / Winlator CMod / Glibc containers).
 
 Components are packaged into:
 1. Custom Driver ZIP archives (.zip) for GPU drivers (Turnip), containing meta.json
    and vulkan.turnip.so at the archive root for standard Android / Winlator driver loaders.
 2. Winlator Container Packages (.wcp files), which are zstandard-compressed tar archives
    (tar.zst) that the Android container extracts into Wine prefix locations based on profile.json.
+3. Component Manifest (manifest.json), which serves as a remote catalog registry for
+   GameNative and Winlator container managers to download and install runtime components.
 
 
 [2] COMPONENT DIRECTORIES & ASSETS
 --------------------------------------------------------------------------------
 1. turnip-latest/
    - Component: Freedreno Turnip Vulkan Driver
-   - Version: 26.2.0 (Compiled with Android NDK 30, Vulkan 1.3/4, minApi 31)
+   - Version: 26.2.0 (Compiled with Android NDK 30, Vulkan 1.3/4)
    - Manifest: meta.json (Schema Version 1)
-   - Library: vulkan.turnip.so
-   - Compatibility: Android 12+ (SDK 31+ / Android 12, 13, 14, 15)
+   - Library: vulkan.turnip.so (AArch64 native shared library)
    - Output: releases/turnip-latest.zip
 
 2. dxvk-sarek-latest/
    - Component: DXVK Sarek (DirectX 8, 9, 10, 11 & DirectDraw translation to Vulkan)
    - Version: 1.12.0-sarek
    - Structure:
-     * x64/ (64-bit DLLs: dxgi.dll, d3d11.dll, d3d10core.dll, d3d9.dll, d3d8.dll, ddraw.dll)
-     * x32/ (32-bit DLLs: dxgi.dll, d3d11.dll, d3d10core.dll, d3d9.dll, d3d8.dll, ddraw.dll)
+     * x64/ (AMD64 / x86-64 DLLs: dxgi.dll, d3d11.dll, d3d10core.dll, d3d9.dll, d3d8.dll, ddraw.dll)
+     * x32/ (i386 / x86 32-bit DLLs: dxgi.dll, d3d11.dll, d3d10core.dll, d3d9.dll, d3d8.dll, ddraw.dll)
      * profile.json (Maps x64 DLLs -> ${system32} and x32 DLLs -> ${syswow64})
    - Output: releases/dxvk-sarek-latest.wcp
 
@@ -75,31 +76,28 @@ Components are packaged into:
   generation and build scripts accordingly.
 - Fix 6: Removed fetch_proton.py and unused scripts directory, maintaining
   a lean repository focused exclusively on Turnip driver and DXVK Sarek packaging.
+- Fix 7: Updated manifest.json component catalog to link directly to Project Sakura
+  GameDeck release assets (Turnip driver, DXVK Sarek, Proton 11.0-1, and Proton Wine),
+  pruned outdated packages, and verified compatibility with GameNative's Kotlin
+  ManifestData deserializer and ContentsManager.
 
 
-[5] PACKAGE SPECIFICATION SUMMARY
+[5] ARCHITECTURE & RUNTIME EXECUTION
 --------------------------------------------------------------------------------
-- Custom Driver (.zip): Standard zip archive with `meta.json` and `vulkan.turnip.so` at root:
-  {
-    "schemaVersion": 1,
-    "name": "...",
-    "description": "...",
-    "author": "...",
-    "packageVersion": "...",
-    "vendor": "...",
-    "driverVersion": "...",
-    "minApi": 31,
-    "libraryName": "vulkan.turnip.so"
-  }
+- Windows PE Layer (DXVK / VKD3D):
+  * 64-bit Windows PE DLLs (${system32}) are AMD64 (x86_64), matching 64-bit PC game binaries.
+  * 32-bit Windows PE DLLs (${syswow64}) are Intel i386 (x86), matching 32-bit PC game binaries.
+- Linux & Native Driver Layer (Turnip / Emulators):
+  * Turnip Vulkan driver (vulkan.turnip.so) and emulation engines (FEXCore, Box64) are AArch64 (ARM64).
+  * FEX / WOW64 handles x86_64/x86 instruction emulation and thunking, passing Vulkan API calls
+    directly to the native AArch64 Turnip driver on the Adreno GPU.
+
+
+[6] PACKAGE SPECIFICATION SUMMARY
+--------------------------------------------------------------------------------
+- Custom Driver (.zip): Standard zip archive with `meta.json` and `vulkan.turnip.so` at root.
 - Container Package (.wcp): A tar archive compressed with zstd (`tar --zstd -cf package.wcp -C <dir> .`)
-  with `profile.json` at root:
-  {
-    "type": "DXVK" | "WINE" | ...,
-    "versionName": "...",
-    "versionCode": 1,
-    "description": "...",
-    "files": [
-      { "source": "relative/path/in/archive.dll", "target": "${system32}/file.dll" },
-      { "source": "relative/path/in/archive.dll", "target": "${syswow64}/file.dll" }
-    ]
-  }
+  with `profile.json` at root.
+- Manifest Registry (manifest.json): JSON schema version 1 tracking downloadable packages across
+  driver, proton, wine, dxvk, vkd3d, box64, wowbox64, and fexcore categories.
+

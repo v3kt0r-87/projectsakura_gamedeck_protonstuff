@@ -1,76 +1,90 @@
-    {                                                                                                              
-      "version": 1,                                                                                                
-      "updatedAt": "2026-08-17",                                                                                   
-      "items": {                                                                                                   
-        "driver": [                                                                                                
-          {                                                                                                        
-            "id": "Turnip-Test-v1.0",                                                                              
-            "name": "Turnip Test Driver v1.0",                                                                     
-            "url": "https://downloads.gamenative.app/drivers/test_driver.zip",                                     
-            "variant": "bionic"
-          }
-        ],
-        "proton": [
-          {
-            "id": "proton-test-11.0-arm64ec",
-            "name": "Proton Test 11.0 ARM64ec",
-            "url": "https://downloads.gamenative.app/proton/proton-test-11.0.wcp",
-            "variant": "bionic"
-          },
-          {
-            "id": "proton-test-ge-glibc",
-            "name": "Proton Test GE Glibc",
-            "url": "https://downloads.gamenative.app/proton/proton-test-glibc.wcp",
-            "variant": "glibc"
-          }
-        ],
-        "wine": [
-          {
-            "id": "wine-test-9.0",
-            "name": "Wine Test 9.0",
-            "url": "https://downloads.gamenative.app/wine/wine-test-9.0.wcp",
-            "variant": "bionic"
-          }
-        ],
-        "dxvk": [
-          {
-            "id": "dxvk-test-2.5.0",
-            "name": "DXVK Test 2.5.0",
-            "url": "https://downloads.gamenative.app/dxwrapper/dxvk-test-2.5.0.wcp",
-            "variant": "bionic"
-          }
-        ],
-        "vkd3d": [
-          {
-            "id": "vkd3d-test-3.0",
-            "name": "VKD3D Test 3.0",
-            "url": "https://downloads.gamenative.app/dxwrapper/vkd3d-test-3.0.tzst",
-            "variant": "bionic"
-          }
-        ],
-        "box64": [
-          {
-            "id": "box64-test-0.3.2",
-            "name": "Box64 Test 0.3.2",
-            "url": "https://downloads.gamenative.app/box64/box64-test-0.3.2.wcp",
-            "variant": "bionic"
-          }
-        ],
-        "wowbox64": [
-          {
-            "id": "wowbox64-test-0.3.6",
-            "name": "WOWBox64 Test 0.3.6",
-            "url": "https://downloads.gamenative.app/box64/wowbox64-test-0.3.6.wcp",
-            "variant": "bionic"
-          }
-        ],
-        "fexcore": [
-          {
-            "id": "fex-test-2601",
-            "name": "FEXCore Test 2601",
-            "url": "https://downloads.gamenative.app/fex/fex-test-2601.wcp",
-            "variant": "bionic"
-          }
-        ]
+{
+  "version": 1,
+  "updatedAt": "2026-08-22",
+  "items": {
+    "driver": [
+      {
+        "id": "turnip-sakura-latest",
+        "name": "Turnip Vulkan Driver 26.2.0 (Project Sakura)",
+        "url": "https://github.com/v3kt0r-87/projectsakura_gamedeck_protonstuff/releases/download/gamedeck-proton-wcp/turnip-latest.zip",
+        "variant": "bionic"
       }
-    }
+    ],
+    "proton": [
+      {
+        "id": "proton-11.0-1-arm64ec-sakura",
+        "name": "Proton 11.0-1 ARM64ec (Project Sakura)",
+        "url": "https://github.com/v3kt0r-87/projectsakura_gamedeck_protonstuff/releases/download/gamedeck-proton-wcp/proton-11.0-1-arm64ec.wcp",
+        "variant": "bionic"
+      },
+      {
+        "id": "proton-11.0-1-custom-arm64ec",
+        "name": "Proton 11.0-1 Custom ARM64ec",
+        "url": "https://github.com/Arihany/WinlatorWCPHub/releases/download/WINE/proton-11.0-1-custom-arm64ec.wcp",
+        "variant": "bionic"
+      }
+    ],
+    "wine": [
+      {
+        "id": "proton-wine-11.0-1-arm64ec-sakura",
+        "name": "Proton Wine 11.0-1 ARM64ec (Project Sakura)",
+        "url": "https://github.com/v3kt0r-87/projectsakura_gamedeck_protonstuff/releases/download/gamedeck-proton-wcp/proton-wine-11.0-1-arm64ec.wcp.xz",
+        "variant": "bionic"
+      }
+    ],
+    "dxvk": [
+      {
+        "id": "dxvk-sarek-latest-sakura",
+        "name": "DXVK 1.12.0 Sarek (Project Sakura)",
+        "url": "https://github.com/v3kt0r-87/projectsakura_gamedeck_protonstuff/releases/download/gamedeck-proton-wcp/dxvk-sarek-latest.wcp",
+        "variant": "bionic"
+      },
+      {
+        "id": "dxvk-3.0.2",
+        "name": "DXVK 3.0.2",
+        "url": "https://github.com/Arihany/WinlatorWCPHub/releases/download/DXVK/dxvk-3.0.2.wcp",
+        "variant": "bionic"
+      }
+    ],
+    "vkd3d": [
+      {
+        "id": "vkd3d-proton-3.0.1",
+        "name": "VKD3D-Proton 3.0.1",
+        "url": "https://github.com/Arihany/WinlatorWCPHub/releases/download/VKD3D-PROTON/vkd3d-proton-3.0.1.wcp",
+        "variant": "bionic"
+      },
+      {
+        "id": "vkd3d-proton-arm64ec-3.0.1",
+        "name": "VKD3D-Proton 3.0.1 ARM64ec",
+        "url": "https://github.com/Arihany/WinlatorWCPHub/releases/download/VKD3D-PROTON-ARM64EC/vkd3d-proton-arm64ec-3.0.1.wcp",
+        "variant": "bionic"
+      }
+    ],
+    "box64": [
+      {
+        "id": "box64-bionic-0.4.2",
+        "name": "Box64 Bionic 0.4.2",
+        "url": "https://github.com/Arihany/WinlatorWCPHub/releases/download/BOX64-BIONIC/box64-bionic-0.4.2.wcp",
+        "variant": "bionic"
+      }
+    ],
+    "wowbox64": [
+      {
+        "id": "wowbox64-0.4.2",
+        "name": "WOWBox64 0.4.2",
+        "url": "https://github.com/Arihany/WinlatorWCPHub/releases/download/WOWBOX64/wowbox64-0.4.2.wcp",
+        "variant": "bionic"
+      }
+    ],
+    "fexcore": [
+      {
+        "id": "fexcore-2608",
+        "name": "FEXCore 2608",
+        "url": "https://github.com/Arihany/WinlatorWCPHub/releases/download/FEXCore/FEXCore-2608.wcp",
+        "variant": "bionic"
+      }
+    ]
+  }
+}
+
+
