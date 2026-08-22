@@ -62,17 +62,17 @@
     ],
     "box64": [
       {
-        "id": "box64-bionic-0.4.2",
-        "name": "Box64 Bionic 0.4.2",
-        "url": "https://github.com/Arihany/WinlatorWCPHub/releases/download/BOX64-BIONIC/box64-bionic-0.4.2.wcp",
+        "id": "box64-0.4.4",
+        "name": "Box64 0.4.4",
+        "url": "https://downloads.gamenative.app/box64-0.4.4.wcp",
         "variant": "bionic"
       }
     ],
     "wowbox64": [
       {
-        "id": "wowbox64-0.4.2",
-        "name": "WOWBox64 0.4.2",
-        "url": "https://github.com/Arihany/WinlatorWCPHub/releases/download/WOWBOX64/wowbox64-0.4.2.wcp",
+        "id": "wowbox64-0.4.4",
+        "name": "WOWBox64 0.4.4",
+        "url": "https://downloads.gamenative.app/Wowbox64-0.4.4.wcp",
         "variant": "bionic"
       }
     ],
